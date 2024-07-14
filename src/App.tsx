@@ -1,35 +1,75 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react'
+import ScrollingLogsViewer from "./Component/ScrollingLogsViewer.tsx";
+import ToolBar from "./Component/ToolBar.tsx";
+import styled from "styled-components";
+import {Log} from "./Model/Log.ts";
+import {LogRecord4Net} from "./Model/LogRecord4Net.ts";
+
+const MainContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  font-family: Arial, sans-serif;
+  box-sizing: border-box;
+`;
+
+const scrollingLogsViewerRef: React.RefObject<ScrollingLogsViewer> = React.createRef();
+
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+      <MainContainer>
+          <ScrollingLogsViewer AutoScroll={true} ref={scrollingLogsViewerRef} />
+          <ToolBar />
+      </MainContainer>
   )
 }
 
 export default App
+
+
+//region 模拟产生日志
+
+/**
+ * 生成随机的Detail字符串
+ * @constructor
+ */
+const DetailStringMaker = (): string => {
+    //随机生成10到300个字符的字符串
+    const length = Math.floor(Math.random() * 290) + 10;
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
+//当前已经产生的日志数量
+let currentTotalLogsCount: number = 0;
+//设置一个定时器,每秒产生随机的1~5条日志,产生的日志为LogRecord4Net类型
+//然后转换成Log类型,并调用ScrollingLogsViewer的AddLogs方法
+const mockupLogsGeneratorInterval = setInterval(() => {
+    const logs: Log[] = [];
+    const logCount = Math.floor(Math.random() * 20) + 1;
+    for (let i = 0; i < logCount; i++) {
+        const logRecord4Net: LogRecord4Net = new LogRecord4Net();
+        logRecord4Net.Type = Math.floor(Math.random() * 10) + 1;
+        logRecord4Net.Layer = Math.floor(Math.random() * 6) + 1;
+        logRecord4Net.Module = `Module ${i}`;
+        logRecord4Net.Summary = `Summary ${currentTotalLogsCount + i}`;
+        logRecord4Net.Detail = `Detail ${i} ${DetailStringMaker()}`;
+        currentTotalLogsCount++;
+        logs.push(Log.fromRecord(logRecord4Net));
+        //够200条日志就停止
+        if (currentTotalLogsCount >= 200) {
+            clearInterval(mockupLogsGeneratorInterval);
+            break;
+        }
+    }
+    scrollingLogsViewerRef.current?.AddLogs(logs);
+}, 200);
+//endregion

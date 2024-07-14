@@ -14,8 +14,7 @@ const LogsContainer = styled.div`
   flex: 1;
   overflow: auto;
   box-sizing: border-box;
-  padding-left: 8px;
-  padding-right: 8px;
+  padding: 8px 14px 8px 8px;
   margin-bottom: 8px;
   border: 1px solid lightgrey;
 `;
