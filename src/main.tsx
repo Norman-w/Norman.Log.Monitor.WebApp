@@ -5,14 +5,29 @@ import ScrollingLogsViewer from './Component/ScrollingLogsViewer.tsx'
 import './index.css'
 import {LogRecord4Net} from "./Model/LogRecord4Net.ts";
 import {Log} from "./Model/Log.ts";
+import ToolBar from "./Component/ToolBar.tsx";
+import styled from "styled-components";
 
 const scrollingLogsViewerRef: React.RefObject<ScrollingLogsViewer> = React.createRef();
+const MainContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  font-family: Arial, sans-serif;
+  box-sizing: border-box;
+`;
 
 //region 组件渲染
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     {/*<App />*/}
-      <ScrollingLogsViewer AutoScroll={true} ref={scrollingLogsViewerRef} />
+      <MainContainer>
+          <ScrollingLogsViewer AutoScroll={true} ref={scrollingLogsViewerRef} />
+          <ToolBar />
+      </MainContainer>
   </React.StrictMode>,
 )
 //endregion

@@ -1,23 +1,14 @@
-import React, {useRef, useState, useImperativeHandle, forwardRef} from 'react';
+import React, {useRef, useState, useImperativeHandle, forwardRef, useEffect} from 'react';
 import {Log} from "../Model/Log.ts";
 import styled from 'styled-components';
 import {LogRecord4View} from "../Model/LogRecord4View.ts";
 import {LogLine} from "./LogLine.tsx";
-import {Select, Tooltip} from 'antd';
 import {LogType} from "../Model/LogType.ts";
 import {LogLayer} from "../Model/LogLayer.ts";
+import useStoreLogsFilterState from "../stores/useStoreLogsFilterState.ts";
 
 //region 子组件及样式定义
-const MainContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  width: 100vw;
-  font-family: Arial, sans-serif;
-  box-sizing: border-box;
-`;
+
 const LogsContainer = styled.div`
   width: 100%;
   flex: 1;
@@ -27,15 +18,6 @@ const LogsContainer = styled.div`
   padding-right: 8px;
   margin-bottom: 8px;
   border: 1px solid lightgrey;
-`;
-const ToolBar = styled.div`
-  display: flex;
-  column-gap: 8px;
-  justify-content: center;
-  margin-bottom: 8px;
-  background-color: #f0f0f0;
-  width: 100%;
-  height: 30px;
 `;
 //endregion
 
@@ -109,12 +91,11 @@ const ScrollingLogsViewer
     //region 组件状态
     const [logsViewList, setLogs] = useState<LogRecord4View[]>([]);
     const logsEndRef: React.RefObject<HTMLDivElement> = useRef(null);
-    //日志包含关键字过滤条件,只要日志的Summary,Detail,Module中包含关键字,则显示,空格和逗号都视为分隔符
-    const [filterText, setFilterText] = useState<string>("");
-    //日志类型过滤条件
-    const [filterLogTypes, setFilterLogTypes] = useState<LogType[]>([]);
-    //日志所在层过滤条件
-    const [filterLogLayers, setFilterLogLayers] = useState<LogLayer[]>([]);
+    const {
+        filterText,
+        filterLogTypes,
+        filterLogLayers,
+    } = useStoreLogsFilterState();
     //endregion
 
     //region 向外暴露方法
@@ -135,61 +116,15 @@ const ScrollingLogsViewer
     }));
     //endregion
 
-    //region 组件事件处理
-    /**
-     * 处理过滤文本变化事件
-     * @param e
-     */
-    const onFilterTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newFilter = e.target.value;
-        setFilterText(newFilter);
+    //region useEffect,在useStoreLogsFilterState状态变化时,重新过滤日志
+    useEffect(() => {
         const newLogsViewList = logsViewList.map(log => {
-            log.Display = isMatched(log.Log, newFilter, filterLogTypes, filterLogLayers);
+            log.Display = isMatched(log.Log, filterText, filterLogTypes, filterLogLayers);
             return log;
         });
         setLogs(newLogsViewList);
-    }
-    /**
-     * 处理过滤日志类型变化事件
-     * @param value
-     */
-    const onFilterLogTypeChange = (value: string[]) => {
-        //从LogType.GetLogTypeByName中获取LogType对象
-        const selectedLogTypes: LogType[] = [];
-        for (let i = 0; i < value.length; i++) {
-            const parsedLogType = LogType.GetLogTypeByName(value[i]);
-            if (parsedLogType) {
-                selectedLogTypes.push(parsedLogType);
-            }
-        }
-        setFilterLogTypes(selectedLogTypes);
-        const newLogsViewList = logsViewList.map(log => {
-            log.Display = isMatched(log.Log, filterText, selectedLogTypes, filterLogLayers);
-            return log;
-        });
-        setLogs(newLogsViewList);
-    }
-    /**
-     * 处理过滤日志层级变化事件
-     * @param value
-     */
-    const onFilterLogLayerChange = (value: string[]) => {
-        //从LogLayer.GetLogLayerByName中获取LogLayer对象
-        const selectedLogLayers: LogLayer[] = [];
-        for (let i = 0; i < value.length; i++) {
-            const parsedLogLayer = LogLayer.GetLogLayerByName(value[i]);
-            if (parsedLogLayer) {
-                selectedLogLayers.push(parsedLogLayer);
-            }
-        }
-        setFilterLogLayers(selectedLogLayers);
-        const newLogsViewList = logsViewList.map(log => {
-            log.Display = isMatched(log.Log, filterText, filterLogTypes, selectedLogLayers);
-            return log;
-        });
-        setLogs(newLogsViewList);
-    }
-    //endregion
+    }, [filterText, filterLogTypes, filterLogLayers]);
+
 
     //region 组件方法
     /**
@@ -203,8 +138,6 @@ const ScrollingLogsViewer
 
     //region 渲染/模板定义
     return (
-        <MainContainer>
-            {/*日志列表*/}
             <LogsContainer>
                 {logsViewList.map((log, index) => (
                     <div key={index}>
@@ -219,56 +152,6 @@ const ScrollingLogsViewer
                     -----End-----
                 </div>
             </LogsContainer>
-            {/*工具栏*/}
-            <ToolBar>
-                {/*日志类型过滤器*/}
-                <Select
-                    mode="tags"
-                    style={{width: 100}}
-                    placeholder="类型过滤"
-                    onChange={onFilterLogTypeChange}
-                    maxTagCount={"responsive"}
-                    maxTagPlaceholder={(omittedValues) => (
-                        <Tooltip
-                            overlayStyle={{pointerEvents: 'none'}}
-                            title={omittedValues.map(({label}) => label).join(', ')}
-                        >
-                            <span>{omittedValues.length}种类型</span>
-                        </Tooltip>
-                    )}
-                >
-                    {LogType.GetKnownLogTypes().map(logType => (
-                        <Select.Option key={logType.Name} value={logType.Name}>
-                            {logType.Name}
-                        </Select.Option>
-                    ))}
-                </Select>
-                {/*日志层级过滤器*/}
-                <Select
-                    mode="tags"
-                    style={{width: 120}}
-                    placeholder="层级过滤"
-                    onChange={onFilterLogLayerChange}
-                    maxTagCount={"responsive"}
-                    maxTagPlaceholder={(omittedValues) => (
-                        <Tooltip
-                            overlayStyle={{pointerEvents: 'none'}}
-                            title={omittedValues.map(({label}) => label).join(', ')}
-                        >
-                            <span>{omittedValues.length}个层级</span>
-                        </Tooltip>
-                    )}
-                >
-                    {LogLayer.GetKnownLogLayers().map(logLayer => (
-                        <Select.Option key={logLayer.Name} value={logLayer.Name}>
-                            {logLayer.Name}
-                        </Select.Option>
-                    ))}
-                </Select>
-                {/*日志关键字过滤器*/}
-                <input type="text" value={filterText} onChange={onFilterTextChange} placeholder="Filter text"/>
-            </ToolBar>
-        </MainContainer>
     );
     //endregion
 });
