@@ -1,9 +1,22 @@
-import React from 'react'
+/*
+
+应用的主入口,也是主窗体.
+主要业务在这个文件中初始化.
+
+当程序启动(窗体加载)时,创建一个WebSocket连接到服务器
+当服务器发送日志过来的时候,显示到滚动日志显示组件上并自动根据过滤器过滤.
+
+* */
+
+import React, {useEffect} from 'react'
 import ScrollingLogsViewer from "./Component/ScrollingLogsViewer.tsx";
 import ToolBar from "./Component/ToolBar.tsx";
 import styled from "styled-components";
 import {Log} from "./Model/Log.ts";
 import {LogRecord4Net} from "./Model/LogRecord4Net.ts";
+import WebSocketClient from "./WebSocketClient.ts";
+import {NetSetting} from "./NetSetting.ts";
+import useStoreLogPool from "./stores/useStoreLogPool.ts";
 
 const MainContainer = styled.div`
   display: flex;
@@ -16,60 +29,54 @@ const MainContainer = styled.div`
   box-sizing: border-box;
 `;
 
-const scrollingLogsViewerRef: React.RefObject<ScrollingLogsViewer> = React.createRef();
+
+const webSocketClient = new WebSocketClient();
 
 
 function App() {
+
+    const onWsOpen = () => {
+        console.log('WebSocket Opened');
+    }
+    const onWsClose = () => {
+        console.log('WebSocket Closed');
+    }
+    const onWsError = (event: Event) => {
+        console.error('WebSocket Error', event);
+    }
+    const {addLogs} = useStoreLogPool();
+    useEffect(() => {
+        const onWsMessage = (event: MessageEvent) => {
+            const logRecord4Net: LogRecord4Net = JSON.parse(event.data);
+            // scrollingLogsViewerRef.current?.AddLogs([Log.fromRecord(logRecord4Net)]);
+            console.log('收到日志:', logRecord4Net)
+            addLogs([Log.fromRecord(logRecord4Net)]);
+        }
+        console.log('正在连接WebSocket')
+        webSocketClient.onConnectedEvent.add(onWsOpen);
+        webSocketClient.onLostConnectEvent.add(onWsClose);
+        webSocketClient.onSocketMessageEvent.add(onWsMessage);
+        webSocketClient.onErrorEvent.add(onWsError);
+        const options = {
+            url: NetSetting.WebSocketUrl,
+            protocol: NetSetting.WebSocketProtocol
+        };
+        webSocketClient.connectSocket(options);
+        return () => {
+            webSocketClient.onConnectedEvent.remove(onWsOpen);
+            webSocketClient.onLostConnectEvent.remove(onWsClose);
+            webSocketClient.onSocketMessageEvent.remove(onWsMessage);
+            webSocketClient.onErrorEvent.remove(onWsError);
+            webSocketClient.dispose();
+        }
+    }, [addLogs]);//给一个空数组,表示只在第一次渲染时执行
+
   return (
       <MainContainer>
-          <ScrollingLogsViewer AutoScroll={true} ref={scrollingLogsViewerRef} />
+          <ScrollingLogsViewer AutoScroll={true} />
           <ToolBar />
       </MainContainer>
   )
 }
 
 export default App
-
-
-//region 模拟产生日志
-
-/**
- * 生成随机的Detail字符串
- * @constructor
- */
-const DetailStringMaker = (): string => {
-    //随机生成10到300个字符的字符串
-    const length = Math.floor(Math.random() * 290) + 10;
-    let result = '';
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-}
-//当前已经产生的日志数量
-let currentTotalLogsCount: number = 0;
-//设置一个定时器,每秒产生随机的1~5条日志,产生的日志为LogRecord4Net类型
-//然后转换成Log类型,并调用ScrollingLogsViewer的AddLogs方法
-const mockupLogsGeneratorInterval = setInterval(() => {
-    const logs: Log[] = [];
-    const logCount = Math.floor(Math.random() * 20) + 1;
-    for (let i = 0; i < logCount; i++) {
-        const logRecord4Net: LogRecord4Net = new LogRecord4Net();
-        logRecord4Net.Type = Math.floor(Math.random() * 10) + 1;
-        logRecord4Net.Layer = Math.floor(Math.random() * 6) + 1;
-        logRecord4Net.Module = `Module ${i}`;
-        logRecord4Net.Summary = `Summary ${currentTotalLogsCount + i}`;
-        logRecord4Net.Detail = `Detail ${i} ${DetailStringMaker()}`;
-        currentTotalLogsCount++;
-        logs.push(Log.fromRecord(logRecord4Net));
-        //够200条日志就停止
-        if (currentTotalLogsCount >= 200) {
-            clearInterval(mockupLogsGeneratorInterval);
-            break;
-        }
-    }
-    scrollingLogsViewerRef.current?.AddLogs(logs);
-}, 200);
-//endregion

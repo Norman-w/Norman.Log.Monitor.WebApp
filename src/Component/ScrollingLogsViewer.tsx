@@ -1,4 +1,18 @@
-import React, {useRef, useState, useImperativeHandle, forwardRef, useEffect} from 'react';
+/*
+
+滚动显示日志的组件.
+组件中同时显示的日志数量当前在useStoreLogPool中设置.
+TODO,这项设置具体应该放在哪里需要仔细斟酌,后续可能会开发配置单页可显式日志条数的功能.
+
+每当在网络(ws)收到日志的网络载体格式数据,
+在设置store的时候,由于本组件绑定(watch)了store中的值,所以当logs变化时,组件将会触发更新.
+得到新的log业务模型的数组后,将数据转换为视图模型以进行显示.
+
+
+* */
+
+
+import React, {useRef, useEffect, useMemo} from 'react';
 import {Log} from "../Model/Log.ts";
 import styled from 'styled-components';
 import {LogRecord4View} from "../Model/LogRecord4View.ts";
@@ -6,9 +20,9 @@ import {LogLine} from "./LogLine.tsx";
 import {LogType} from "../Model/LogType.ts";
 import {LogLayer} from "../Model/LogLayer.ts";
 import useStoreLogsFilterState from "../stores/useStoreLogsFilterState.ts";
+import useStoreLogPool from "../stores/useStoreLogPool.ts";
 
-//region 子组件及样式定义
-
+// 定义日志容器的样式
 const LogsContainer = styled.div`
   width: 100%;
   flex: 1;
@@ -18,142 +32,93 @@ const LogsContainer = styled.div`
   margin-bottom: 8px;
   border: 1px solid lightgrey;
 `;
-//endregion
 
-//region 类型定义
-/**
- * 滚动日志查看器属性
- */
+// 滚动日志查看器组件的属性类型定义
 interface ScrollingLogsViewerProps {
-    /**
-     * 是否自动滚动到底部
-     */
-    AutoScroll: boolean;
+    AutoScroll: boolean; // 是否自动滚动到底部
 }
-//endregion
 
-//region 全局函数
-/**
- * 判断日志是否匹配过滤条件
- * @param log
- * @param filterText
- * @param filterLogTypes
- * @param filterLogLayers
- */
+// 判断日志是否匹配过滤条件的函数
 const isMatched = (log: Log,
                    filterText: string | null | undefined,
                    filterLogTypes: LogType[] | undefined | null,
                    filterLogLayers: LogLayer[] | undefined | null) => {
+    // 根据文本、日志类型、日志层级进行过滤
     let isMatchedByFilterText: boolean;
     let isMatchedByLogType: boolean;
     let isMatchedByLogLayer: boolean;
-    //region 输入字符串过滤
-    //如果是空字符串,则不过滤
+
+    // 文本过滤逻辑
     if (!filterText) {
         isMatchedByFilterText = true;
     } else {
-        //将过滤的用户输入的关键字分割成字符串数组.
         const filterByTextSplitTagArray = filterText.split(/[ ,]/);
-        //分别用Summary,Detail,Module进行匹配
         isMatchedByFilterText = filterByTextSplitTagArray.some(tag => {
             return log.Summary.includes(tag) || log.Detail.includes(tag) || log.Module.includes(tag);
         });
     }
-    //endregion
-    //region 日志类型过滤
-    //如果没有选择过滤条件,则不过滤
+
+    // 日志类型过滤逻辑
     if (!filterLogTypes || filterLogTypes.length === 0) {
         isMatchedByLogType = true;
     } else {
         isMatchedByLogType = filterLogTypes.some(logType => log.Type === logType);
     }
-    //endregion
-    //region 日志所在层过滤
-    //如果没有选择过滤条件,则不过滤
+
+    // 日志层级过滤逻辑
     if (!filterLogLayers || filterLogLayers.length === 0) {
         isMatchedByLogLayer = true;
     } else {
         isMatchedByLogLayer = filterLogLayers.some(logLayer => log.Layer === logLayer);
     }
-    //endregion
+
     return isMatchedByFilterText && isMatchedByLogType && isMatchedByLogLayer;
 }
-//endregion
 
-//region 组件定义及导出
-/**
- * 滚动日志查看器
- */
-const ScrollingLogsViewer
-    = forwardRef((props: ScrollingLogsViewerProps, ref) => {
+// 将日志列表转换为视图模型列表的函数
+const logList2LogViewList = (logList: Log[]): LogRecord4View[] => {
+    return logList.map(log => new LogRecord4View(log));
+}
 
-    //region 组件状态
-    const [logsViewList, setLogs] = useState<LogRecord4View[]>([]);
-    const logsEndRef: React.RefObject<HTMLDivElement> = useRef(null);
-    const {
-        filterText,
-        filterLogTypes,
-        filterLogLayers,
-    } = useStoreLogsFilterState();
-    //endregion
+// 滚动日志查看器组件
+const ScrollingLogsViewer = (props: ScrollingLogsViewerProps) => {
+    const {logs} = useStoreLogPool(); // 从状态管理中获取日志列表
+    // const [logsViewList, setLogs] = useState<LogRecord4View[]>([]); // 组件状态：用于存储转换后的日志视图模型列表
+    const logsEndRef: React.RefObject<HTMLDivElement> = useRef(null); // 用于滚动到底部的ref
+    const {filterText, filterLogTypes, filterLogLayers} = useStoreLogsFilterState(); // 从状态管理中获取过滤条件
 
-    //region 向外暴露方法
-    useImperativeHandle(ref, () => ({
-        AddLogs(newLogs: Log[]) {
-            const newLogsViewList = newLogs.map(log => {
-                const log4View = new LogRecord4View(log);
-                log4View.Display = isMatched(log, filterText, filterLogTypes, filterLogLayers);
-                return log4View;
-            });
-            const newArray = logsViewList.concat(newLogsViewList);
-            setLogs(newArray);
-            if (props.AutoScroll) {
-                //在nextTick中滚动到底部
-                setTimeout(scrollToBottom, 0);
-            }
-        }
-    }));
-    //endregion
+    // 直接使用 useMemo 来计算并返回过滤后的日志列表
+    const logsViewList = useMemo(() => {
+        const filteredLogs = logs.filter(log => isMatched(log, filterText, filterLogTypes, filterLogLayers));
+        return logList2LogViewList(filteredLogs);
+    }, [logs, filterText, filterLogTypes, filterLogLayers]);
 
-    //region useEffect,在useStoreLogsFilterState状态变化时,重新过滤日志
+    // 如果启用了自动滚动，当日志列表更新时滚动到底部
     useEffect(() => {
-        const newLogsViewList = logsViewList.map(log => {
-            log.Display = isMatched(log.Log, filterText, filterLogTypes, filterLogLayers);
-            return log;
-        });
-        setLogs(newLogsViewList);
-    }, [filterText, filterLogTypes, filterLogLayers]);
+        if (props.AutoScroll) {
+            scrollToBottom();
+        }
+    }, [logsViewList, props.AutoScroll]);
 
-
-    //region 组件方法
-    /**
-     * 滚动到底部
-     */
+    // 滚动到日志列表底部的函数
     const scrollToBottom = () => {
         const options: ScrollIntoViewOptions = {behavior: 'smooth', block: 'end', inline: 'nearest'};
         logsEndRef.current?.scrollIntoView(options);
     };
-    //endregion
 
-    //region 渲染/模板定义
+    // 组件渲染逻辑
     return (
-            <LogsContainer>
-                {logsViewList.map((log, index) => (
-                    <div key={index}>
-                        {/*{JSON.stringify(log)}*/}
-                        {log.Display ? (
-                            <LogLine log={log}>
-                            </LogLine>
-                        ) : null}
-                    </div>
-                ))}
-                <div ref={logsEndRef} style={{borderBottom: '1px solid lightgrey', textAlign: "center"}}>
-                    -----End-----
+        <LogsContainer>
+            {logsViewList.map((log, index) => (
+                <div key={index}>
+                    {log.Display ? <LogLine log={log}></LogLine> : null}
                 </div>
-            </LogsContainer>
+            ))}
+            <div ref={logsEndRef} style={{borderBottom: '1px solid lightgrey', textAlign: "center"}}>
+                -----End-----
+            </div>
+        </LogsContainer>
     );
-    //endregion
-});
+};
 
 export default ScrollingLogsViewer;
-//endregion
