@@ -8,6 +8,6 @@ TODO WIP
 * */
 
 export class NetSetting {
-    public static readonly WebSocketUrl: string = 'ws://localhost:5011/ws';
+    public static readonly WebSocketUrl: string = 'ws://localhost:5012/ws';
     public static readonly WebSocketProtocol: string = 'Receiver';
 }
