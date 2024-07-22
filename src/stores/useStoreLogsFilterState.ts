@@ -1,5 +1,5 @@
 // src/stores/useStoreLogsFilterState.ts
-import create from 'zustand';
+import {create} from 'zustand';
 import {LogType} from '../Model/LogType';
 import {LogLayer} from '../Model/LogLayer';
 
