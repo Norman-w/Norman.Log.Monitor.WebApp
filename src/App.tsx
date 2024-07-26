@@ -40,6 +40,14 @@ function App() {
     }
     const onWsClose = () => {
         console.log('WebSocket Closed');
+        //自动重连
+        setTimeout(() => {
+            console.log('正在重连WebSocket')
+            webSocketClient.connectSocket({
+                url: NetSetting.WebSocketUrl,
+                protocol: NetSetting.WebSocketProtocol
+            });
+        }, NetSetting.ReconnectIntervalMs);
     }
     const onWsError = (event: Event) => {
         console.error('WebSocket Error', event);
