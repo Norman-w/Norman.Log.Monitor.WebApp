@@ -51,6 +51,10 @@ const LogLine = (props: { log: LogRecord4View }) => {
     const log = props.log;
     return (
         <div style={{ width: '100%',border: '0.1px dashed lightgrey', padding: 3}}>
+            {/*小字显示日志的时间,注意日志时间从服务器过来都是utc时间*/}
+            <div style={{ fontSize: 10, color: 'grey', padding: 2 }}>
+                {log.Log.CreateTime.toLocaleString()}
+            </div>
             <div style={{ display: 'flex', flexDirection: 'row', width: '100%', height: 'auto' }}>
                 <Tag color={ViewSetting.LogTypeSetting[log.Log.Type.Value].BackColor}
                      icon={ViewSetting.LogTypeSetting[log.Log.Type.Value].Icon}>

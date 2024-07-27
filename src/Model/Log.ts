@@ -59,7 +59,9 @@ export class Log {
     public static fromRecord(record:LogRecord4Net): Log {
         const log = new Log();
         log.Id = record.Id;
-        log.CreateTime = new Date(record.CreateTime);
+        // log.CreateTime = new Date(record.CreateTime);
+        //注意服务器过来的时间都是utc时间
+        log.CreateTime = new Date(record.CreateTime + 'Z');
         log.LoggerName = record.LoggerName;
         log.Type = LogType.GetLogTypeByValue(record.Type) ?? LogType.Unknown;
         log.Layer = LogLayer.GetLogLayerByValue(record.Layer) ?? LogLayer.Unknown;
