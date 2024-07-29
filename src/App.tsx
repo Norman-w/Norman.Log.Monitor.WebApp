@@ -17,6 +17,8 @@ import {LogRecord4Net} from "./Model/LogRecord4Net.ts";
 import WebSocketClient from "./WebSocketClient.ts";
 import {NetSetting} from "./NetSetting.ts";
 import useStoreLogPool from "./stores/useStoreLogPool.ts";
+import {SearchPage} from "./Component/SearchPage";
+import AntdTable from "./Component/Test/AntdTable.tsx";
 
 const MainContainer = styled.div`
   display: flex;
@@ -81,8 +83,10 @@ function App() {
 
   return (
       <MainContainer>
-          <ScrollingLogsViewer AutoScroll={true} />
-          <ToolBar />
+          {/*<ScrollingLogsViewer AutoScroll={true} />*/}
+          {/*<ToolBar />*/}
+          <SearchPage></SearchPage>
+          {/*<AntdTable></AntdTable>*/}
       </MainContainer>
   )
 }
