@@ -1,27 +1,10 @@
-import styled from "styled-components";
-import {Space, Table, TablePaginationConfig, Tag} from "antd";
+import {Table, Tag} from "antd";
 
 //导入search-result-list-table样式
 import './SearchResultListTable.scss'
-import React, {useState} from "react";
+import React from "react";
 import {ViewSetting} from "../../ViewSetting.ts";
 import {LogRecord4View} from "../../Model/LogRecord4View.ts";
-
-//制造列类型,元组信息就是列名
-// interface DateType {
-//     key:string,
-//     id:string,
-//     type:number,
-//     layer:number,
-//     loggerName:string,
-//     module:string,
-//     summary:string,
-//     detail:string
-// }
-//定义数据类型为继承LogRecord4View,在此基础上增加key关键字
-interface LogRecord4ViewType extends LogRecord4View{
-    key:string
-}
 
 const columns = [
     {
