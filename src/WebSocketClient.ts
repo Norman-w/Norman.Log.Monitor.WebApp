@@ -1,3 +1,6 @@
+const IsDebugging = false
+
+
 class EventListener<T> {
     private listeners: Array<(e: T) => void> = [];
 
@@ -50,7 +53,7 @@ class HeartChecker {
             if (this.parent.webSocket && this.parent.webSocket.readyState === WebSocket.OPEN) {
                 this.parent.webSocket.send(JSON.stringify(heartPack));
             } else {
-                console.log('发送心跳任务失败,连接已断开');
+                IsDebugging && console.log('发送心跳任务失败,连接已断开');
                 this.onError();
             }
         }, this.timeout);
@@ -91,7 +94,7 @@ class WebsocketClient {
     }
 
     public dispose(): void {
-        console.log('WebSocketClient dispose')
+        IsDebugging && console.log('WebSocketClient dispose')
         this.disposed = true;
         if (this.heartChecker) {
             this.heartChecker.reset();
@@ -116,10 +119,10 @@ class WebsocketClient {
                 }
                 this.webSocket = new WebSocket(options.url, options.protocol?options.protocol:'');
             } catch (err) {
-                console.log('连接socket错误,err:', err);
+                IsDebugging && console.log('连接socket错误,err:', err);
             }
             if (!this.webSocket) {
-                console.log('连接socket失败');
+                IsDebugging && console.log('连接socket失败');
                 return;
             }
             this.webSocket.onopen = (res) => {
@@ -127,7 +130,7 @@ class WebsocketClient {
                 this.heartChecker?.start(); // 开始心跳
             };
             this.webSocket.onclose = (res) => {
-                console.log('WebSocketClient.onclose', res);
+                IsDebugging && console.log('WebSocketClient.onclose', res);
                 this.onLostConnectEvent.trigger(res);
                 this.heartChecker?.reset(); // 重置心跳
             };

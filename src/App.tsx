@@ -20,6 +20,8 @@ import useStoreLogPool from "./stores/useStoreLogPool.ts";
 import {SearchPage} from "./Component/SearchPage";
 import AntdTable from "./Component/Test/AntdTable.tsx";
 
+const IsDebugging = false;
+
 const MainContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -38,13 +40,13 @@ const webSocketClient = new WebSocketClient();
 function App() {
 
     const onWsOpen = () => {
-        console.log('WebSocket Opened');
+        IsDebugging && console.log('WebSocket Opened');
     }
     const onWsClose = () => {
-        console.log('WebSocket Closed');
+        IsDebugging && console.log('WebSocket Closed');
         //自动重连
         setTimeout(() => {
-            console.log('正在重连WebSocket')
+            IsDebugging && console.log('正在重连WebSocket')
             webSocketClient.connectSocket({
                 url: NetSetting.WebSocketUrl,
                 protocol: NetSetting.WebSocketProtocol
@@ -52,14 +54,14 @@ function App() {
         }, NetSetting.ReconnectIntervalMs);
     }
     const onWsError = (event: Event) => {
-        console.error('WebSocket Error', event);
+        IsDebugging && console.error('WebSocket Error', event);
     }
     const {addLogs} = useStoreLogPool();
     useEffect(() => {
         const onWsMessage = (event: MessageEvent) => {
             const logRecord4Net: LogRecord4Net = JSON.parse(event.data);
             // scrollingLogsViewerRef.current?.AddLogs([Log.fromRecord(logRecord4Net)]);
-            console.log('收到日志:', logRecord4Net)
+            IsDebugging && console.log('收到日志:', logRecord4Net)
             addLogs([Log.fromRecord(logRecord4Net)]);
         }
         console.log('正在连接WebSocket')
