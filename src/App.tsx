@@ -113,7 +113,7 @@ function App() {
                         display: 'flex',
                         flexDirection: 'column'
                     }}
-                    defaultActiveKey="2"
+                    defaultActiveKey="1"
                     centered
                     type="line"
                 >
