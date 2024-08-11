@@ -25,12 +25,12 @@ import useStoreLogPool from "../stores/useStoreLogPool.ts";
 // 定义日志容器的样式
 const LogsContainer = styled.div`
   width: 100%;
-  flex: 1;
+  flex-grow: 1;
   overflow: auto;
   box-sizing: border-box;
   padding: 8px 14px 8px 8px;
   margin-bottom: 8px;
-  border: 1px solid lightgrey;
+  height: 100%;
 `;
 
 // 滚动日志查看器组件的属性类型定义

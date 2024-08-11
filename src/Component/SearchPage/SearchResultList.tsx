@@ -5,12 +5,26 @@ import './SearchResultListTable.scss'
 import React from "react";
 import {ViewSetting} from "../../ViewSetting.ts";
 import {LogRecord4View} from "../../Model/LogRecord4View.ts";
+import {LogType} from '../../Model/LogType.ts'
+
+const buildNameColumnFilters = () : { text: string, value: number }[] => {
+    const knownLogTypes = LogType.GetKnownLogTypes()
+    return knownLogTypes.map((logType) => {
+        return {
+            text: logType.Name,
+            value: logType.Value,
+        }
+    })
+}
+const nameColumnFilters = buildNameColumnFilters()
 
 const columns = [
     {
         title: '日志类型',
         dataIndex: 'Log',
         key: 'key',
+        filters: nameColumnFilters,
+        onFilter: (value, record) => record.Log.Type.Value === value,
         /*使用标签显示*/
         render: (log) =>
             <Tag color={ViewSetting.LogTypeSetting[log.Type.Value].BackColor}
