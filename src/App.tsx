@@ -21,7 +21,7 @@ import {LogRecord4Net} from "./Model/LogRecord4Net.ts";
 import WebSocketClient from "./WebSocketClient.ts";
 import {NetSetting} from "./NetSetting.ts";
 import useStoreLogPool from "./stores/useStoreLogPool.ts";
-import {LogQuery} from "./Component/LogQuery.tsx";
+import LogQuery from "./Component/LogQuery.tsx";
 import {ConfigProvider, Tabs, theme} from "antd";
 import ScrollingLogsViewer from "./Component/ScrollingLogsViewer.tsx";
 
