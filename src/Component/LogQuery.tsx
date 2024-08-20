@@ -6,13 +6,14 @@
 
 
 * */
-import {LogRecord4Net} from "../Model/LogRecord4Net.ts";
+
+//region 导入React相关
 import React, {useState} from "react";
+//endregion
+//region 导入antd组件
 import Search from "antd/es/input/Search";
 import {Button, Select, Space, Spin, Table, TablePaginationConfig, TableProps, Tag} from "antd";
-import {LogType} from "../Model/LogType";
-import {ViewSetting} from "../ViewSetting.ts";
-import {LogLayer} from "../Model/LogLayer";
+
 //复制图标
 import {CopyOutlined} from "@ant-design/icons";
 //清空图标
@@ -21,8 +22,18 @@ import {ClearOutlined} from "@ant-design/icons";
 import {SearchOutlined} from "@ant-design/icons";
 //消息提示
 import {message} from "antd";
+//endregion
+//region 导入自定义组件
 import TimeRangeDropdown from "./TimeRangeDropdown.tsx";
+//endregion
+//region 导入模型
+import {LogRecord4Net} from "../Model/LogRecord4Net.ts";
+import {LogType} from "../Model/LogType";
+import {ViewSetting} from "../ViewSetting.ts";
+import {LogLayer} from "../Model/LogLayer";
+//endregion
 
+//region 构建日志类型和日志层级的Map
 const logTypeMap = new Map<number, string>();
 const types = LogType.GetKnownLogTypes();
 for (let i = 0; i < types.length; i++) {
@@ -38,7 +49,9 @@ const layers = LogLayer.GetKnownLogLayers();
 for (let i = 0; i < layers.length; i++) {
     logLayerMap.set(layers[i].Value, layers[i].Name);
 }
+//endregion
 
+//region 复制文本到剪贴板方法
 const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
         console.log('复制到剪贴板成功:', text);
@@ -46,8 +59,10 @@ const copyToClipboard = (text: string) => {
         console.error('复制到剪贴板失败:', e);
     });
 }
+//endregion
 
-const columns:TableProps<LogRecord4Net>['columns'] = [
+//region 表格列定义
+const columns: TableProps<LogRecord4Net>['columns'] = [
     {
         title: '日志类型',
         dataIndex: 'Type',
@@ -58,7 +73,8 @@ const columns:TableProps<LogRecord4Net>['columns'] = [
             return (
                 <Tag color={ViewSetting.LogTypeSetting[record.Type].BackColor}
                      icon={ViewSetting.LogTypeSetting[record.Type].Icon}>
-                    <span style={ {color: ViewSetting.LogTypeSetting[record.Type].ForeColor}}>{logTypeMap.get(record.Type)}</span>
+                    <span
+                        style={{color: ViewSetting.LogTypeSetting[record.Type].ForeColor}}>{logTypeMap.get(record.Type)}</span>
                 </Tag>
             )
         }
@@ -71,7 +87,10 @@ const columns:TableProps<LogRecord4Net>['columns'] = [
         ellipsis: true,
         render: (text, record) => {
             return (
-                <span style={{ color: ViewSetting.LogLayerSetting[record.Layer].Color,fontWeight:"bold" }}>{logLayerMap.get(record.Layer)}</span>
+                <span style={{
+                    color: ViewSetting.LogLayerSetting[record.Layer].Color,
+                    fontWeight: "bold"
+                }}>{logLayerMap.get(record.Layer)}</span>
             )
         }
     },
@@ -104,11 +123,12 @@ const columns:TableProps<LogRecord4Net>['columns'] = [
                     <CopyOutlined
                         style={{marginLeft: '10px', color: 'greenyellow'}}
                         onClick={() => {
-                        copyToClipboard(record.Detail);
-                        message.info('已复制到剪贴板').then(r =>
-                            {console.log('消息提示已关闭:', r)}
-                        );
-                    }}/>
+                            copyToClipboard(record.Detail);
+                            message.info('已复制到剪贴板').then(r => {
+                                    console.log('消息提示已关闭:', r)
+                                }
+                            );
+                        }}/>
                 </>
             )
         },
@@ -121,7 +141,9 @@ const columns:TableProps<LogRecord4Net>['columns'] = [
         ellipsis: true,
     },
 ];
+//endregion
 
+//region 表格分页配置
 //TS的问题,这里的类型定义不是必须的,只是为了消除警告
 // TablePaginationConfig会有错误提示,在这里重新定义一次TablePaginationConfigCopy继承自TablePaginationConfig
 type TablePaginationConfigCopy = TablePaginationConfig & {
@@ -129,14 +151,16 @@ type TablePaginationConfigCopy = TablePaginationConfig & {
     current: number,
     pageSize: number,
 }
-const defaultPagination:TablePaginationConfigCopy = {
-    position:['topRight','bottomRight'],
+const defaultPagination: TablePaginationConfigCopy = {
+    position: ['topRight', 'bottomRight'],
     current: 1,
     pageSize: 30,
 }
+//endregion
 
 
 export default function LogQuery() {
+    //region 状态管理
     const [pagination, setPagination] = useState(defaultPagination);
     const [loading, setLoading] = useState(false);
     const [logs, setLogs] = useState<LogRecord4Net[]>([]);
@@ -150,6 +174,8 @@ export default function LogQuery() {
     const [searchingLogModule, setSearchingLogModule] = useState('');
     const [searchingLogCreateTimeStart, setSearchingLogCreateTimeStart] = useState<Date | null>(null);
     const [searchingLogCreateTimeEnd, setSearchingLogCreateTimeEnd] = useState<Date | null>(null);
+    //endregion
+    //region 搜索日志记录方法,网络请求和页面状态更新一体,TODO 待优化
     const onSearchLog = (pagination) => {
         if (loading) {
             console.log('正在加载中,请稍后再试')
@@ -211,91 +237,116 @@ export default function LogQuery() {
                 });
         }
     }
+    //endregion
     return (
         <>
-            {/*搜索栏里面的东西居中对齐,超出了宽度自动换行.每个搜索工具间隔一定的距禈*/}
-            <Spin spinning={loading}>
-            <Space style={{width: '100%', justifyContent: 'center', flexWrap: 'wrap', gap: '30px'}}>
-                {/*日志记录器名称*/}
-                <Space>
+            {/*搜索栏*/}
+            <Spin spinning={loading}>{/*加载中的提示*/}
+                <Space style={{width: '100%', justifyContent: 'center', flexWrap: 'wrap', gap: '30px'}}>
+                    {/*日志记录器名称*/}
+                    <Space>
+                        <Search
+                            placeholder="请输入日志记录器名称"
+                            enterButton
+                            value={searchingLogName}
+                            onSearch={onSearchLog}
+                            onChange={(v) => {
+                                setSearchingLogName(v.target.value)
+                            }}
+                        />
+                    </Space>
+                    {/*日志类型*/}
+                    <Space>
+                        {/*类型,可多选,后面一个清空按钮,再后面跟一个放大镜图标的搜索框*/}
+                        <Select mode="multiple"
+                                placeholder="请选择日志类型"
+                                style={{width: 180}}
+                                options={typeOptions}
+                                maxTagCount={2}
+                                value={searchingLogType}
+                                onChange={(v) => {
+                                    setSearchingLogType(v);
+                                    setClearSearchingLogTypeDisabled(false)
+                                }}
+                        />
+                        {/*清空类型按钮,清空时触发一次搜索,设置清空图标为灰色*/}
+                        <Button onClick={() => {
+                            setSearchingLogType([]);
+                            setClearSearchingLogTypeDisabled(true);
+                            onSearchLog(pagination)
+                        }}
+                                disabled={clearSearchingLogTypeDisabled}>
+                            <ClearOutlined/>
+                        </Button>
+                        {/*搜索按钮*/}
+                        <Button type="primary" onClick={onSearchLog}><SearchOutlined/></Button>
+                    </Space>
+                    {/*所在层级*/}
+                    <Space>
+                        <Select mode="multiple"
+                                placeholder="请选择日志层级"
+                                style={{width: 180}}
+                                options={layers.map(l => {
+                                    return {label: l.Name, value: l.Value}
+                                })}
+                                maxTagCount={2}
+                                value={searchingLogLayer}
+                                onChange={(v) => {
+                                    setSearchingLogLayer(v);
+                                    setClearSearchingLogLayerDisabled(false)
+                                }}
+                        />
+                        <Button onClick={() => {
+                            setSearchingLogLayer([]);
+                            setClearSearchingLogLayerDisabled(true);
+                            onSearchLog(pagination)
+                        }}
+                                disabled={clearSearchingLogLayerDisabled}>
+                            <ClearOutlined/>
+                        </Button>
+                        <Button type="primary" onClick={onSearchLog}><SearchOutlined/></Button>
+                    </Space>
+                    {/*模块*/}
+                    <Space>
+                        <Search
+                            placeholder="请输入模块关键字"
+                            enterButton
+                            value={searchingLogModule}
+                            onSearch={onSearchLog}
+                            onChange={(v) => {
+                                setSearchingLogModule(v.target.value)
+                            }}
+                        />
+                    </Space>
+                    {/*创建时间区间*/}
+                    <Space>
+                        {/*自定义的组件*/}
+                        <TimeRangeDropdown onChange={(v) => {
+                            setSearchingLogCreateTimeStart(v[0]);
+                            setSearchingLogCreateTimeEnd(v[1]);
+                            onSearchLog(pagination);
+                        }}/>
+                    </Space>
+                    {/*摘要关键字和详情关键字*/}
                     <Search
-                        placeholder="请输入日志记录器名称"
+                        placeholder="请输入概要关键字"
                         enterButton
-                        value={searchingLogName}
+                        value={searchingLogSummaryKeyword}
                         onSearch={onSearchLog}
-                        onChange={(v) => {setSearchingLogName(v.target.value)}}
+                        onChange={(v) => {
+                            setSearchingLogSummaryKeyword(v.target.value)
+                        }}
                     />
-                </Space>
-                {/*日志类型*/}
-                <Space>
-                    {/*类型,可多选,后面一个清空按钮,再后面跟一个放大镜图标的搜索框*/}
-                    <Select mode="multiple"
-                            placeholder="请选择日志类型"
-                            style={{ width: 180 }}
-                            options={typeOptions}
-                            maxTagCount={2}
-                            value={searchingLogType}
-                            onChange={(v) => {setSearchingLogType(v);setClearSearchingLogTypeDisabled(false)}}
-                    />
-                    {/*清空类型按钮,清空时触发一次搜索,设置清空图标为灰色*/}
-                    <Button onClick={() => {setSearchingLogType([]);setClearSearchingLogTypeDisabled(true);onSearchLog(pagination)}}
-                            disabled={clearSearchingLogTypeDisabled}>
-                        <ClearOutlined />
-                    </Button>
-                    {/*搜索按钮*/}
-                    <Button type="primary" onClick={onSearchLog}><SearchOutlined /></Button>
-                </Space>
-                {/*所在层级*/}
-                <Space>
-                    <Select mode="multiple"
-                            placeholder="请选择日志层级"
-                            style={{ width: 180 }}
-                            options={layers.map(l => {return {label: l.Name, value: l.Value}})}
-                            maxTagCount={2}
-                            value={searchingLogLayer}
-                            onChange={(v) => {setSearchingLogLayer(v);setClearSearchingLogLayerDisabled(false)}}
-                    />
-                    <Button onClick={() => {setSearchingLogLayer([]);setClearSearchingLogLayerDisabled(true);onSearchLog(pagination)}}
-                            disabled={clearSearchingLogLayerDisabled}>
-                        <ClearOutlined />
-                    </Button>
-                    <Button type="primary" onClick={onSearchLog}><SearchOutlined /></Button>
-                </Space>
-                {/*模块*/}
-                <Space>
                     <Search
-                        placeholder="请输入模块关键字"
+                        placeholder="请输入详情关键字"
                         enterButton
-                        value={searchingLogModule}
+                        value={searchingLogDetailKeyword}
                         onSearch={onSearchLog}
-                        onChange={(v) => {setSearchingLogModule(v.target.value)}}
+                        onChange={(v) => {
+                            setSearchingLogDetailKeyword(v.target.value)
+                        }}
                     />
                 </Space>
-                {/*创建时间区间*/}
-                <Space>
-                    <TimeRangeDropdown onChange={(v) => {
-                        setSearchingLogCreateTimeStart(v[0]);
-                        setSearchingLogCreateTimeEnd(v[1]);
-                        onSearchLog(pagination);
-                    }}/>
-                </Space>
-                {/*摘要关键字和详情关键字*/}
-                <Search
-                    placeholder="请输入概要关键字"
-                    enterButton
-                    value={searchingLogSummaryKeyword}
-                    onSearch={onSearchLog}
-                    onChange={(v) => {setSearchingLogSummaryKeyword(v.target.value)}}
-                />
-                <Search
-                    placeholder="请输入详情关键字"
-                    enterButton
-                    value={searchingLogDetailKeyword}
-                    onSearch={onSearchLog}
-                    onChange={(v) => {setSearchingLogDetailKeyword(v.target.value)}}
-                />
-                {/*时间区间选择,最近1天,最近一周,最近一个月,自定义时间段,点击自定义时间段后支持选择起止时间*/}
-            </Space>
             </Spin>
             {/*日志记录表格*/}
             <Table
