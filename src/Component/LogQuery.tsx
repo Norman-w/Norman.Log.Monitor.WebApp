@@ -228,10 +228,10 @@ export default function LogQuery() {
     }
     //endregion
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
             {/*搜索栏*/}
             <Spin spinning={loading}>{/*加载中的提示*/}
-                    <Space style={{width: '100%', justifyContent: 'center', flexWrap: 'wrap', gap: '30px'}}>
+                <Space style={{width: '100%', justifyContent: 'center', flexWrap: 'wrap', gap: '30px'}}>
                     {/*日志记录器名称*/}
                     <Space>
                         <Search
@@ -338,14 +338,14 @@ export default function LogQuery() {
                 </Space>
             </Spin>
             {/*日志记录表格*/}
-                <Table
+            <Table
                 columns={columns}
                 dataSource={logs}
                 loading={loading}
                 onChange={onSearchLog}
                 pagination={{position: ['topRight', 'bottomRight'], ...pagination}}
                 scroll={{y: `calc(100vh - 250px)`, x: '100%'}}
-                />
+            />
         </div>
     )
 }
