@@ -64,6 +64,13 @@ const copyToClipboard = (text: string) => {
 //region 表格列定义
 const columns: TableProps<LogRecord4Net>['columns'] = [
     {
+        title: '记录器',
+        dataIndex: 'LoggerName',
+        key: 'LoggerName',
+        width: '100px',
+        ellipsis: true,
+    },
+    {
         title: '日志类型',
         dataIndex: 'Type',
         key: 'Type',
@@ -221,6 +228,7 @@ export default function LogQuery() {
                             res.logs[i].Summary = res.logs[i].summary;
                             res.logs[i].Detail = res.logs[i].detail;
                             res.logs[i].CreateTime = res.logs[i].createTime;
+                            res.logs[i].LoggerName = res.logs[i].loggerName;
                         }
                     }
                     console.log('添加了key的日志记录结果列表:', res);
