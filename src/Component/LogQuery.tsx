@@ -199,7 +199,7 @@ export default function LogQuery() {
             const searchParam = {
                 StartTime: searchingLogCreateTimeStart,
                 EndTime: searchingLogCreateTimeEnd,
-                LoggerNameList: '',//TODO
+                LoggerNameList: searchingLogName,
                 //数组是[1,2,3]这样的,转换成字符串"1,2,3"
                 TypeList: searchingLogType.join(','),
                 LayerList: searchingLogLayer.join(','),
