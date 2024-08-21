@@ -155,7 +155,7 @@ export default function LogQuery() {
     const [pagination, setPagination] = useState({current: 1, pageSize: 20, total: 0});
     const [loading, setLoading] = useState(false);
     const [logs, setLogs] = useState<LogRecord4Net[]>([]);
-    const [searchingLogName, setSearchingLogName] = useState('');
+    const [searchingLoggerName, setSearchingLoggerName] = useState('');
     const [searchingLogSummaryKeyword, setSearchingLogSummaryKeyword] = useState('');
     const [searchingLogDetailKeyword, setSearchingLogDetailKeyword] = useState('');
     const [searchingLogType, setSearchingLogType] = useState<number[]>([]);
@@ -165,6 +165,21 @@ export default function LogQuery() {
     const [searchingLogModule, setSearchingLogModule] = useState('');
     const [searchingLogCreateTimeStart, setSearchingLogCreateTimeStart] = useState<Date | null>(null);
     const [searchingLogCreateTimeEnd, setSearchingLogCreateTimeEnd] = useState<Date | null>(null);
+    //endregion
+    //region 页面组件事件响应
+    const onClickClearAllSearchOptions = () => {
+        setSearchingLoggerName('');
+        setSearchingLogSummaryKeyword('');
+        setSearchingLogDetailKeyword('');
+        setSearchingLogType([]);
+        setClearSearchingLogTypeDisabled(true);
+        setSearchingLogLayer([]);
+        setClearSearchingLogLayerDisabled(true);
+        setSearchingLogModule('');
+        setSearchingLogCreateTimeStart(null);
+        setSearchingLogCreateTimeEnd(null);
+        onSearchLog(pagination)
+    }
     //endregion
     //region 搜索日志记录方法,网络请求和页面状态更新一体,TODO 待优化
     const onSearchLog = (pagination) => {
@@ -180,7 +195,7 @@ export default function LogQuery() {
             const searchParam = {
                 StartTime: searchingLogCreateTimeStart,
                 EndTime: searchingLogCreateTimeEnd,
-                LoggerNameList: searchingLogName,
+                LoggerNameList: searchingLoggerName,
                 //数组是[1,2,3]这样的,转换成字符串"1,2,3"
                 TypeList: searchingLogType.join(','),
                 LayerList: searchingLogLayer.join(','),
@@ -237,10 +252,10 @@ export default function LogQuery() {
                         <Search
                             placeholder="请输入日志记录器名称"
                             enterButton
-                            value={searchingLogName}
+                            value={searchingLoggerName}
                             onSearch={onSearchLog}
                             onChange={(v) => {
-                                setSearchingLogName(v.target.value)
+                                setSearchingLoggerName(v.target.value)
                             }}
                         />
                     </Space>
@@ -335,6 +350,12 @@ export default function LogQuery() {
                             setSearchingLogDetailKeyword(v.target.value)
                         }}
                     />
+                    {/*清空搜索选项*/}
+                    <Button
+                        type="primary"
+                        onClick={onClickClearAllSearchOptions}>
+                        清空搜索选项
+                    </Button>
                 </Space>
             </Spin>
             {/*日志记录表格*/}
