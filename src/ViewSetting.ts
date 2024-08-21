@@ -16,17 +16,17 @@ import {LogType} from "./Model/LogType.ts";
 export class ViewSetting {
     //日志类型的相关配置,这个配置是用于显示日志的颜色和图标,颜色是指Tag标签的颜色,图标是指Tag标签的图标
     public static readonly LogTypeSetting: { [key: number]: { ForeColor: string, BackColor: string, Icon: string } } = {
-        [LogType.Unknown.Value]: {BackColor: 'grey', ForeColor: 'black', Icon: '🤔'},
+        [LogType.Unknown.Value]: {BackColor: 'grey', ForeColor: 'white', Icon: '🤔'},
         [LogType.Info.Value]: {BackColor: 'white', ForeColor: 'black', Icon: 'ℹ️'},
         [LogType.Debug.Value]: {BackColor: 'lightblue', ForeColor: 'black', Icon: '🎯'},
-        [LogType.Error.Value]: {BackColor: 'red', ForeColor: 'black', Icon: '❌'},
-        [LogType.Success.Value]: {BackColor: 'green', ForeColor: 'black', Icon: '🎉'},
-        [LogType.Fail.Value]: {BackColor: 'red', ForeColor: 'black', Icon: '⛔️'},
-        [LogType.Warning.Value]: {BackColor: 'orange', ForeColor: 'black', Icon: '⚠️'},
+        [LogType.Error.Value]: {BackColor: 'red', ForeColor: 'white', Icon: '❌'},
+        [LogType.Success.Value]: {BackColor: 'green', ForeColor: 'white', Icon: '🎉'},
+        [LogType.Fail.Value]: {BackColor: 'red', ForeColor: 'white', Icon: '⛔️'},
+        [LogType.Warning.Value]: {BackColor: 'orange', ForeColor: 'white', Icon: '⚠️'},
         [LogType.Start.Value]: {BackColor: 'greenyellow', ForeColor: 'black', Icon: '▶️'},
         [LogType.Finish.Value]: {BackColor: 'lightcyan', ForeColor: 'black', Icon: '🔚'},
-        [LogType.Bug.Value]: {BackColor: 'darkred', ForeColor: 'black', Icon: '🐞'},
-        [LogType.Simulate.Value]: {BackColor: 'cyan', ForeColor: 'black', Icon: '🎮'},
+        [LogType.Bug.Value]: {BackColor: 'darkred', ForeColor: 'white', Icon: '🐞'},
+        [LogType.Simulate.Value]: {BackColor: 'cyan', ForeColor: 'white', Icon: '🎮'},
     }
     //日志所在层的颜色,这个颜色是用于显示日志的背景色(日志记录器的名称的背景)
     public static readonly LogLayerSetting: { [key: number]: { Color: string } } = {
