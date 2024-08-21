@@ -12,7 +12,7 @@ import React, {useState} from "react";
 //endregion
 //region 导入antd组件
 import Search from "antd/es/input/Search";
-import {Button, Select, Space, Spin, Table, TablePaginationConfig, TableProps, Tag} from "antd";
+import {Button, Select, Space, Spin, Table, TableProps, Tag} from "antd";
 
 //复制图标
 import {CopyOutlined} from "@ant-design/icons";
@@ -150,25 +150,9 @@ const columns: TableProps<LogRecord4Net>['columns'] = [
 ];
 //endregion
 
-//region 表格分页配置
-//TS的问题,这里的类型定义不是必须的,只是为了消除警告
-// TablePaginationConfig会有错误提示,在这里重新定义一次TablePaginationConfigCopy继承自TablePaginationConfig
-type TablePaginationConfigCopy = TablePaginationConfig & {
-    position: string[],
-    current: number,
-    pageSize: number,
-}
-const defaultPagination: TablePaginationConfigCopy = {
-    position: ['topRight', 'bottomRight'],
-    current: 1,
-    pageSize: 30,
-}
-//endregion
-
-
 export default function LogQuery() {
     //region 状态管理
-    const [pagination, setPagination] = useState(defaultPagination);
+    const [pagination, setPagination] = useState({current: 1, pageSize: 20, total: 0});
     const [loading, setLoading] = useState(false);
     const [logs, setLogs] = useState<LogRecord4Net[]>([]);
     const [searchingLogName, setSearchingLogName] = useState('');
@@ -192,10 +176,7 @@ export default function LogQuery() {
             if (pagination && pagination.current > 0) {
                 pageNum = pagination.current - 1;
             }
-            let pageSize = defaultPagination.pageSize;
-            if (pagination && pagination.pageSize > 0) {
-                pageSize = pagination.pageSize;
-            }
+            const pageSize = pagination.pageSize;
             const searchParam = {
                 StartTime: searchingLogCreateTimeStart,
                 EndTime: searchingLogCreateTimeEnd,
@@ -247,10 +228,10 @@ export default function LogQuery() {
     }
     //endregion
     return (
-        <>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             {/*搜索栏*/}
             <Spin spinning={loading}>{/*加载中的提示*/}
-                <Space style={{width: '100%', justifyContent: 'center', flexWrap: 'wrap', gap: '30px'}}>
+                    <Space style={{width: '100%', justifyContent: 'center', flexWrap: 'wrap', gap: '30px'}}>
                     {/*日志记录器名称*/}
                     <Space>
                         <Search
@@ -357,13 +338,14 @@ export default function LogQuery() {
                 </Space>
             </Spin>
             {/*日志记录表格*/}
-            <Table
+                <Table
                 columns={columns}
                 dataSource={logs}
                 loading={loading}
                 onChange={onSearchLog}
-                pagination={pagination}
-            />
-        </>
+                pagination={{position: ['topRight', 'bottomRight'], ...pagination}}
+                scroll={{y: `calc(100vh - 250px)`, x: '100%'}}
+                />
+        </div>
     )
 }
