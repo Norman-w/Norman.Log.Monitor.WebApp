@@ -289,7 +289,7 @@ export default function LogQuery() {
                     <Space>
                         <Select mode="multiple"
                                 placeholder="请选择日志层级"
-                                style={{width: 180}}
+                                style={{width: 200}}
                                 options={layers.map(l => {
                                     return {label: l.Name, value: l.Value}
                                 })}
