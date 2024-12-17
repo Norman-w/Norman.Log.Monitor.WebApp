@@ -205,7 +205,7 @@ export default function LogQuery() {
                 SummaryAndDetailTags: searchingLogSummaryKeyword + ' ' + searchingLogDetailKeyword,
             };
             console.log('搜索参数:', searchParam)
-            fetch('http://localhost:5012/Log', {
+            fetch('https://norman.wang/logUploadEndpoint/Log/', {
                 method: 'POST',
                 body: JSON.stringify(searchParam),
                 headers: {
