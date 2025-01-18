@@ -13,30 +13,30 @@
 
 //region 导入antd组件和moment库
 import {Dropdown, Menu, DatePicker, Button} from 'antd';
-import React, {useState} from 'react';
-import moment from 'moment';
+import {useState} from 'react';
+import dayjs from 'dayjs';
 const {RangePicker} = DatePicker;
 //endregion
 
-const TimeRangeDropdown = ({onChange}) => {
+const TimeRangeDropdown: React.FC<{ onChange: (dates: dayjs.Dayjs[] | null) => void }> = ({onChange}) => {
     //region 定义状态
-    const [customDateRange, setCustomDateRange] = useState([]);
+    const [customDateRange, setCustomDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>(null);
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
     //endregion
 
     //region 定义事件处理函数(点击菜单项)
 
-    const handleMenuClick = (e) => {
+    const handleMenuClick = (e: { key: string }) => {
         if (e.key === 'custom') {
             setSelectedOption(-1);
         } else if (e.key === 'clear') {
             setSelectedOption(null);
-            setCustomDateRange([]);
+            setCustomDateRange(null);
             onChange([]);
         } else {
             const days = parseInt(e.key, 10);
-            const start = moment().subtract(days, 'days');
-            const end = moment();
+                            const start = dayjs().subtract(days, 'days');
+                            const end = dayjs();
             setSelectedOption(days);
             setCustomDateRange([start, end]);
             onChange([start, end]);
@@ -45,9 +45,9 @@ const TimeRangeDropdown = ({onChange}) => {
     //endregion
 
     //region 定义事件处理函数(选择时间区间)
-    const handleDateChange = (dates) => {
+    const handleDateChange = (dates: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null) => {
         setCustomDateRange(dates);
-        onChange(dates);
+        onChange(dates && dates[0] && dates[1] ? [dates[0], dates[1]] : null);
     };
     //endregion
 

@@ -12,7 +12,6 @@ TODO,当前已经关闭了严格模式,正式使用时应当打开.
 * */
 
 
-import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './index.css'
 import App from "./App.tsx";

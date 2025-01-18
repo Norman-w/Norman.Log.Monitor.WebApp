@@ -8,7 +8,7 @@
 * */
 
 //region 导入React相关
-import React, {useState} from "react";
+import {useState} from "react";
 //endregion
 //region 导入antd组件
 import Search from "antd/es/input/Search";
@@ -76,7 +76,7 @@ const columns: TableProps<LogRecord4Net>['columns'] = [
         key: 'Type',
         width: '100px',
         ellipsis: true,
-        render: (text, record) => {
+        render: (_, record) => {
             return (
                 <Tag color={ViewSetting.LogTypeSetting[record.Type].BackColor}
                      icon={ViewSetting.LogTypeSetting[record.Type].Icon}>
@@ -92,7 +92,7 @@ const columns: TableProps<LogRecord4Net>['columns'] = [
         key: 'Layer',
         width: '100px',
         ellipsis: true,
-        render: (text, record) => {
+        render: (_, record) => {
             return (
                 <span style={{
                     color: ViewSetting.LogLayerSetting[record.Layer].Color,
@@ -123,7 +123,7 @@ const columns: TableProps<LogRecord4Net>['columns'] = [
         // width: 'auto',
         // ellipsis: true,
         //带上一个复制按钮,点击后可以复制到剪贴板
-        render: (text, record) => {
+        render: (_, record) => {
             return (
                 <>
                     <span>{record.Detail}</span>
@@ -152,7 +152,7 @@ const columns: TableProps<LogRecord4Net>['columns'] = [
 
 export default function LogQuery() {
     //region 状态管理
-    const [pagination, setPagination] = useState({current: 1, pageSize: 20, total: 0});
+    const [pagination, setPagination] = useState<{ current: number; pageSize: number; total: number }>({current: 1, pageSize: 20, total: 0});
     const [loading, setLoading] = useState(false);
     const [logs, setLogs] = useState<LogRecord4Net[]>([]);
     const [searchingLoggerName, setSearchingLoggerName] = useState('');
@@ -182,7 +182,7 @@ export default function LogQuery() {
     }
     //endregion
     //region 搜索日志记录方法,网络请求和页面状态更新一体,TODO 待优化
-    const onSearchLog = (pagination) => {
+    const onSearchLog = (pagination: { current: number; pageSize: number; total: number }) => {
         if (loading) {
             console.log('正在加载中,请稍后再试')
         } else {
@@ -191,7 +191,7 @@ export default function LogQuery() {
             if (pagination && pagination.current > 0) {
                 pageNum = pagination.current - 1;
             }
-            const pageSize = pagination.pageSize;
+            const pageSize = pagination.pageSize || 0;
             const searchParam = {
                 StartTime: searchingLogCreateTimeStart,
                 EndTime: searchingLogCreateTimeEnd,
@@ -253,7 +253,7 @@ export default function LogQuery() {
                             placeholder="请输入日志记录器名称"
                             enterButton
                             value={searchingLoggerName}
-                            onSearch={onSearchLog}
+                            onSearch={() => onSearchLog(pagination)}
                             onChange={(v) => {
                                 setSearchingLoggerName(v.target.value)
                             }}
@@ -283,7 +283,7 @@ export default function LogQuery() {
                             <ClearOutlined/>
                         </Button>
                         {/*搜索按钮*/}
-                        <Button type="primary" onClick={onSearchLog}><SearchOutlined/></Button>
+                        <Button type="primary" onClick={() => onSearchLog(pagination)}><SearchOutlined/></Button>
                     </Space>
                     {/*所在层级*/}
                     <Space>
@@ -308,7 +308,7 @@ export default function LogQuery() {
                                 disabled={clearSearchingLogLayerDisabled}>
                             <ClearOutlined/>
                         </Button>
-                        <Button type="primary" onClick={onSearchLog}><SearchOutlined/></Button>
+                        <Button type="primary" onClick={() => onSearchLog(pagination)}><SearchOutlined/></Button>
                     </Space>
                     {/*模块*/}
                     <Space>
@@ -316,7 +316,7 @@ export default function LogQuery() {
                             placeholder="请输入模块关键字"
                             enterButton
                             value={searchingLogModule}
-                            onSearch={onSearchLog}
+                            onSearch={() => onSearchLog(pagination)}
                             onChange={(v) => {
                                 setSearchingLogModule(v.target.value)
                             }}
@@ -326,9 +326,11 @@ export default function LogQuery() {
                     <Space>
                         {/*自定义的组件*/}
                         <TimeRangeDropdown onChange={(v) => {
-                            setSearchingLogCreateTimeStart(v[0]);
-                            setSearchingLogCreateTimeEnd(v[1]);
-                            onSearchLog(pagination);
+                            if (v) {
+                                setSearchingLogCreateTimeStart(v[0]?.toDate());
+                                setSearchingLogCreateTimeEnd(v[1]?.toDate());
+                                onSearchLog(pagination);
+                            }
                         }}/>
                     </Space>
                     {/*摘要关键字和详情关键字*/}
@@ -336,7 +338,7 @@ export default function LogQuery() {
                         placeholder="请输入概要关键字"
                         enterButton
                         value={searchingLogSummaryKeyword}
-                        onSearch={onSearchLog}
+                        onSearch={() => onSearchLog(pagination)}
                         onChange={(v) => {
                             setSearchingLogSummaryKeyword(v.target.value)
                         }}
@@ -345,7 +347,7 @@ export default function LogQuery() {
                         placeholder="请输入详情关键字"
                         enterButton
                         value={searchingLogDetailKeyword}
-                        onSearch={onSearchLog}
+                        onSearch={() => onSearchLog(pagination)}
                         onChange={(v) => {
                             setSearchingLogDetailKeyword(v.target.value)
                         }}
@@ -363,7 +365,13 @@ export default function LogQuery() {
                 columns={columns}
                 dataSource={logs}
                 loading={loading}
-                onChange={onSearchLog}
+                onChange={(pagination) => onSearchLog(
+                    {
+                        current: pagination.current ?? 1,
+                        pageSize: pagination.pageSize ?? 0,
+                        total: pagination.total ?? 0
+                    }
+                )}
                 pagination={{position: ['topRight', 'bottomRight'], ...pagination}}
                 scroll={{y: `calc(100vh - 250px)`, x: '100%'}}
             />

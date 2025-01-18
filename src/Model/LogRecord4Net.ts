@@ -13,11 +13,11 @@ export class LogRecord4Net {
     public readonly CreateTime: Date = new Date();
     public readonly Id: string = "";
     public LoggerName: string = 'Default';
-    public Type: number;
-    public Layer: number;
-    public Module: string;
-    public Summary: string;
-    public Detail: string;
+    public Type!: number;
+    public Layer!: number;
+    public Module!: string;
+    public Summary!: string;
+    public Detail!: string;
 
     public LogContext: {
         Role: unknown;

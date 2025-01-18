@@ -14,7 +14,7 @@ Tabs中包含两个TabPane:
 
 * */
 
-import React, {useEffect} from 'react'
+import {useEffect} from 'react'
 import styled, {createGlobalStyle} from "styled-components";
 import {Log} from "./Model/Log.ts";
 import {LogRecord4Net} from "./Model/LogRecord4Net.ts";

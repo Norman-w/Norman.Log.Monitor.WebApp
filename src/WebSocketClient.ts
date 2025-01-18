@@ -72,7 +72,7 @@ class WebsocketClient {
     private heartChecker: HeartChecker | undefined;
     private disposed: boolean;
     private connectOptions: { url?: string };
-    private lockReconnect: boolean;
+    // private lockReconnect: boolean;
 
     public onSocketMessageEvent: EventListener<MessageEvent>;
     public onConnectedEvent: EventListener<Event>;
@@ -85,7 +85,7 @@ class WebsocketClient {
         this.heartChecker = undefined;
         this.disposed = false;
         this.connectOptions = {};
-        this.lockReconnect = false;
+        // this.lockReconnect = false;
 
         this.onSocketMessageEvent = new EventListener<MessageEvent>();
         this.onConnectedEvent = new EventListener<Event>();
@@ -94,7 +94,7 @@ class WebsocketClient {
     }
 
     public dispose(): void {
-        IsDebugging && console.log('WebSocketClient dispose')
+        IsDebugging || this.debugMode && console.log('WebSocketClient dispose')
         this.disposed = true;
         if (this.heartChecker) {
             this.heartChecker.reset();
@@ -110,6 +110,7 @@ class WebsocketClient {
         if (this.disposed) return;
         if (options.url) {
             this.connectOptions = options;
+            console.log('连接参数:', this.connectOptions);
             try {
                 if (!this.heartChecker) {
                     this.heartChecker = new HeartChecker(this);

@@ -13,15 +13,15 @@ export class LogLayer {
     }
 
     public static GetLogLayerByCode(code: string): LogLayer {
-        return this.GetKnownLogLayers().find(l => l.Code === code);
+        return this.GetKnownLogLayers().find(l => l.Code === code) ?? this.Unknown;
     }
 
     public static GetLogLayerByName(name: string): LogLayer {
-        return this.GetKnownLogLayers().find(l => l.Name === name);
+        return this.GetKnownLogLayers().find(l => l.Name === name) ?? this.Unknown;
     }
 
     public static GetLogLayerByValue(value: number): LogLayer {
-        return this.GetKnownLogLayers().find(l => l.Value === value);
+        return this.GetKnownLogLayers().find(l => l.Value === value) ?? this.Unknown;
     }
 
     private static _knownLogLayers: LogLayer[];
@@ -31,12 +31,13 @@ export class LogLayer {
             return this._knownLogLayers;
         }
         const staticFields = Object.getOwnPropertyNames(LogLayer);
+        type LogLayerKeys = keyof typeof LogLayer;
         for (let i = 0; i < staticFields.length; i++) {
             const field = staticFields[i];
             if (field === "Unknown" || field === "GetKnownLogLayers") {
                 continue;
             }
-            const value = (LogLayer as unknown)[field];
+            const value = LogLayer[field as LogLayerKeys];
             if (value instanceof LogLayer) {
                 if (!this._knownLogLayers) {
                     this._knownLogLayers = [];

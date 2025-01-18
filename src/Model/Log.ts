@@ -10,11 +10,11 @@ export class Log {
     public CreateTime: Date = new Date();
     public Id: string = "";
     public LoggerName: string = 'Default';
-    public Type: LogType;
-    public Layer: LogLayer;
-    public Module: string;
-    public Summary: string;
-    public Detail: string;
+    public Type!: LogType;
+    public Layer!: LogLayer;
+    public Module!: string;
+    public Summary!: string;
+    public Detail!: string;
 
     public LogContext: {
         Role: unknown;
@@ -34,7 +34,7 @@ export class Log {
         Others: [],
     };
 
-    private _string: string;
+    private _string: string = '';
 
     public toString(): string {
         if (this._string) {

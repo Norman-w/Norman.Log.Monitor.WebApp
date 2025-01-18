@@ -40,12 +40,13 @@ export class LogType {
             return this._knownLogTypeCodes;
         }
         const staticFields = Object.getOwnPropertyNames(LogType);
+        type LogTypeKeys = keyof typeof LogType;
         for(let i = 0; i < staticFields.length; i++) {
             const field = staticFields[i];
             if(field === "Unknown" || field === "GetKnownLogTypes") {
                 continue;
             }
-            const value = (LogType as unknown)[field];
+            const value = LogType[field as LogTypeKeys];
             if(value instanceof LogType) {
                 if(!this._knownLogTypeCodes) {
                     this._knownLogTypeCodes = [];
@@ -56,16 +57,16 @@ export class LogType {
         return this._knownLogTypeCodes;
     }
 
-    public static GetLogTypeByValue(value: number): LogType | undefined {
-        return this.GetKnownLogTypes().find(l => l.Value === value);
+    public static GetLogTypeByValue(value: number): LogType {
+        return this.GetKnownLogTypes().find(l => l.Value === value) ?? this.Unknown;
     }
 
-    public static GetLogTypeByCode(code: string): LogType | undefined {
-        return this.GetKnownLogTypes().find(l => l.Code === code);
+    public static GetLogTypeByCode(code: string): LogType {
+        return this.GetKnownLogTypes().find(l => l.Code === code) ?? this.Unknown;
     }
 
-    public static GetLogTypeByName(name: string): LogType | undefined {
-        return this.GetKnownLogTypes().find(l => l.Name === name);
+    public static GetLogTypeByName(name: string): LogType {
+        return this.GetKnownLogTypes().find(l => l.Name === name) ?? this.Unknown;
     }
     //endregion
 //region 重载操作符,TODO 尚未验证

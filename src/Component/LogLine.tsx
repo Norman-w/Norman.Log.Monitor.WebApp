@@ -14,7 +14,6 @@ tag标签的颜色也是按照配置中的type来设置
 
 * */
 
-import React from 'react';
 import { LogRecord4View } from '../Model/LogRecord4View.ts';
 import { ViewSetting } from '../ViewSetting.ts';
 import { Tag } from 'antd';
