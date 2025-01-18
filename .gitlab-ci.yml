@@ -15,12 +15,11 @@ build:
     - echo "构建成功"
 
 #部署步骤
-deploy:
-  stage: deploy
-  script:
-    - short_commit_id=$(git rev-parse --short HEAD)
-    - tar -czf /var/www/norman.log.monitor.web_pre_build_${short_commit_id}.tar -C /var/www norman.log.monitor.web
-    - echo "备份成功,路径: /var/www/norman.log.monitor.web_pre_build_${short_commit_id}.tar"
-    - rm -rf /var/www/norman.log.monitor.web/*
-    - rsync -av --progress dist/ /var/www/norman.log.monitor.web/
-    - echo "部署成功,时间: $(date)"
+script:
+  - >
+    short_commit_id=$(git rev-parse --short HEAD) &&
+    tar -czf /var/www/norman.log.monitor.web_pre_build_${short_commit_id}.tar -C /var/www norman.log.monitor.web &&
+    echo "备份成功,路径: /var/www/norman.log.monitor.web_pre_build_${short_commit_id}.tar" &&
+    rm -rf /var/www/norman.log.monitor.web/* &&
+    rsync -av --progress dist/ /var/www/norman.log.monitor.web/ &&
+    echo "部署成功,时间: $(date)"
