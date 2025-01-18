@@ -7,6 +7,9 @@ stages:
 
 #构建步骤
 build:
+  tags:
+    - localhost
+    - docker
   stage: build
   script:
     - >
@@ -29,6 +32,9 @@ build:
 
 #部署步骤
 deploy:
+  tags:
+    - localhost
+    - docker
   stage: deploy
   script:
     - >
