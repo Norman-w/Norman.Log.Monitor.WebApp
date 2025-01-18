@@ -15,7 +15,7 @@ build:
     - echo "构建成功"
   artifacts: # 定义 artifacts
     paths:
-      - dist/  # 指定要存储的文件或目录（例如构建后的 dist 文件夹）
+      - /tmp/  # 指定要存储的文件或目录（例如构建后的 dist 文件夹）
     expire_in: 1 week  # 可选：设置 Artifact 存储时长（默认是永久）
 
 #部署步骤
