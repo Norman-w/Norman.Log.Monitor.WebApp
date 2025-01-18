@@ -9,19 +9,18 @@ stages:
 build:
   stage: build
   script:
-    # 如果服务器没有docker,则安装docker
-    - if [ ! -x "$(command -v docker)" ]; then
+    - >
+      if [ ! -x "$(command -v docker)" ]; then
         echo "没有安装docker,开始安装docker";
         curl -fsSL https://get.docker.com -o get-docker.sh;
         sh get-docker.sh;
         rm -f get-docker.sh;
       fi
-    # 如果docker中没有node镜像,则拉取node 18.18镜像
-    - if [ ! "$(docker images -q node:18.18 2> /dev/null)" ]; then
+    - >
+      if [ ! "$(docker images -q node:18.18 2> /dev/null)" ]; then
         echo "没有node:18.18镜像,开始拉取";
         docker pull node:18.18;
       fi
-    # 构建项目
     - echo "进行安装依赖和"
     - docker run --rm -v $(pwd):/app -w /app node:18.18 npm install
     - echo "依赖安装成功,开始构建"
@@ -32,14 +31,9 @@ build:
 deploy:
   stage: deploy
   script:
-    # 获取当前commit_id
     - short_commit_id=$(git rev-parse --short HEAD)
-    # 压缩备份当前线上的版本
     - tar -czf /var/www/norman.log.monitor.web_pre_build_${short_commit_id}.tar -C /var/www norman.log.monitor.web
     - echo "备份成功,路径: /var/www/norman.log.monitor.web_pre_build_${short_commit_id}.tar"
-    # 删除线上的旧版本
     - rm -rf /var/www/norman.log.monitor.web/*
-    # 将构建好的项目部署到线上
     - rsync -av --progress dist/ /var/www/norman.log.monitor.web/
-    # 输出当前时间和部署成功消息
     - echo "部署成功,时间: $(date)"
