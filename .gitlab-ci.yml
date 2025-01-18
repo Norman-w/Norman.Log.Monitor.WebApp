@@ -12,22 +12,6 @@ build:
     - docker
   stage: build
   script:
-    - >
-      if [ ! -x "$(command -v docker)" ]; then
-        echo "没有安装docker,开始安装docker";
-        curl -fsSL https://get.docker.com -o get-docker.sh;
-        sh get-docker.sh;
-        rm -f get-docker.sh;
-      fi
-    - >
-      if [ ! "$(docker images -q node:18.18 2> /dev/null)" ]; then
-        echo "没有node:18.18镜像,开始拉取";
-        docker pull node:18.18;
-      fi
-    - echo "进行安装依赖和"
-    - docker run --rm -v $(pwd):/app -w /app node:18.18 npm install
-    - echo "依赖安装成功,开始构建"
-    - docker run --rm -v $(pwd):/app -w /app node:18.18 npm run build
     - echo "构建成功"
 
 #部署步骤
