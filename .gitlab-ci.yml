@@ -1,0 +1,45 @@
+# 推送master分支后,自动构建并部署到服务器
+# 当前项目托管到gitlab且服务器本身也是gitlab-runner,作为此项目的runner
+# 服务器上需要安装docker,并且docker中需要有node镜像,如果没有docker,本命令会自动安装docker,并且拉取node 18.18镜像,然后构建项目
+stages:
+  - build
+  - deploy
+
+#构建步骤
+build:
+  stage: build
+  script:
+    # 如果服务器没有docker,则安装docker
+    - if [ ! -x "$(command -v docker)" ]; then
+        echo "没有安装docker,开始安装docker";
+        curl -fsSL https://get.docker.com -o get-docker.sh;
+        sh get-docker.sh;
+        rm -f get-docker.sh;
+      fi
+    # 如果docker中没有node镜像,则拉取node 18.18镜像
+    - if [ ! "$(docker images -q node:18.18 2> /dev/null)" ]; then
+        echo "没有node:18.18镜像,开始拉取";
+        docker pull node:18.18;
+      fi
+    # 构建项目
+    - echo "进行安装依赖和"
+    - docker run --rm -v $(pwd):/app -w /app node:18.18 npm install
+    - echo "依赖安装成功,开始构建"
+    - docker run --rm -v $(pwd):/app -w /app node:18.18 npm run build
+    - echo "构建成功"
+
+#部署步骤
+deploy:
+  stage: deploy
+  script:
+    # 获取当前commit_id
+    - short_commit_id=$(git rev-parse --short HEAD)
+    # 压缩备份当前线上的版本
+    - tar -czf /var/www/norman.log.monitor.web_pre_build_${short_commit_id}.tar -C /var/www norman.log.monitor.web
+    - echo "备份成功,路径: /var/www/norman.log.monitor.web_pre_build_${short_commit_id}.tar"
+    # 删除线上的旧版本
+    - rm -rf /var/www/norman.log.monitor.web/*
+    # 将构建好的项目部署到线上
+    - rsync -av --progress dist/ /var/www/norman.log.monitor.web/
+    # 输出当前时间和部署成功消息
+    - echo "部署成功,时间: $(date)"
