@@ -1,17 +1,15 @@
-#检查服务器环境,输出系统版本,内核版本,cpu信息,内存信息,磁盘信息,网络信息, 当前时间
-#检测docker有没有安装,如果安装了,输出docker版本,如果没有安装,输出docker未安装
-#语言环境: bash
-before_script:
-  - echo "系统版本:" && uname -a
-  - echo "CPU 信息:" && lscpu
-  - echo "内存信息:" && free -h
-  - echo "磁盘信息:" && df -h
-  - echo "网络信息:" && ip a
-  - echo "当前时间:" && date
-  - |
-    if command -v docker &> /dev/null
-    then
-      echo "Docker 版本:" && docker --version
-    else
-      echo "Docker 未安装"
-    fi
+check_server_environment:
+  script:
+    - echo "系统版本:" && uname -a
+    - echo "CPU 信息:" && lscpu
+    - echo "内存信息:" && free -h
+    - echo "磁盘信息:" && df -h
+    - echo "网络信息:" && ip a
+    - echo "当前时间:" && date
+    - |
+      if command -v docker &> /dev/null
+      then
+        echo "Docker 版本:" && docker --version
+      else
+        echo "Docker 未安装"
+      fi
