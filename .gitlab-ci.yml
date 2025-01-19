@@ -13,3 +13,5 @@ check_server_environment:
       else
         echo "Docker 未安装"
       fi
+  tags:
+    - localhost
