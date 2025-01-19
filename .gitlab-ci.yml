@@ -1,37 +1,22 @@
-# 推送master分支后,自动构建并部署到服务器
-# 当前项目托管到gitlab且服务器本身也是gitlab-runner,作为此项目的runner
-# 服务器上需要安装docker,并且docker中需要有node镜像,如果没有docker,本命令会自动安装docker,并且拉取node 18.18镜像,然后构建项目
+#检查服务器环境,输出系统版本,内核版本,cpu信息,内存信息,磁盘信息,网络信息, 当前时间
+#检测docker有没有安装,如果安装了,输出docker版本,如果没有安装,输出docker未安装
+#语言环境: bash
 before_script:
-  - echo "当前工作目录是: $(pwd)"
-  - ls -la
-stages:
-  - build
-  - deploy
 
-#构建步骤
-build:
-  tags:
-    - localhost
-    - docker
-  stage: build
-  script:
-    - echo "构建成功"
-  artifacts: # 定义 artifacts
-    paths:
-      - /tmp/  # 指定要存储的文件或目录（例如构建后的 dist 文件夹）
-    expire_in: 1 week  # 可选：设置 Artifact 存储时长（默认是永久）
+  - name: 检查服务器环境
+    script:
+      - echo "系统版本:" && uname -a
+      - echo "CPU 信息:" && lscpu
+      - echo "内存信息:" && free -h
+      - echo "磁盘信息:" && df -h
+      - echo "网络信息:" && ip a
+      - echo "当前时间:" && date
 
-#部署步骤
-deploy:
-  tags:
-    - localhost
-    - docker
-  stage: deploy
-  script:
-    - >
-      short_commit_id=$(git rev-parse --short HEAD) &&
-      tar -czf /var/www/norman.log.monitor.web_pre_build_${short_commit_id}.tar -C /var/www norman.log.monitor.web &&
-      echo "备份成功,路径: /var/www/norman.log.monitor.web_pre_build_${short_commit_id}.tar" &&
-      rm -rf /var/www/norman.log.monitor.web/* &&
-      rsync -av --progress dist/ /var/www/norman.log.monitor.web/ &&
-      echo "部署成功,时间: $(date)"
+  - name: 检查 Docker 安装
+    script:
+      - if command -v docker &> /dev/null
+        then
+        echo "Docker 版本:" && docker --version
+        else
+        echo "Docker 未安装"
+        fi
