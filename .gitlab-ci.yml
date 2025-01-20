@@ -21,6 +21,25 @@ pre:
   script:
     -  echo "开始 Pre 阶段_ 初始化环境..."
     -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
 
 # Build阶段: 项目依赖安装并构建
 build:
