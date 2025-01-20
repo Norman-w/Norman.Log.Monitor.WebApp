@@ -1,5 +1,4 @@
 stages:
-  - pre
   - build
   - deploy
 
@@ -13,23 +12,15 @@ default:
   tags:
     - docker
     - localhost
-
-# Pre阶段: 环境准备工作
-pre:
-  stage: pre
-  image: node:${NODE_VERSION}
-  script:
-    - sudo chmod +x pre_init_docker.sh
-    - sudo ./pre_init_docker.sh
 # Build阶段: 项目依赖安装并构建
 build:
   stage: build
   script:
-    - echo "开始 Build 阶段: 安装依赖并构建项目..."
+    - echo "开始 Build 阶段. 安装依赖并构建项目..."
     - npm install
     - npm run build
     - DIST_ABS_PATH=$(realpath ${DIST_DIR})
-    - echo "Build 完成: 构建产物已生成在 ${DIST_ABS_PATH} 目录"
+    - echo "Build 完成, 构建产物已生成在 ${DIST_ABS_PATH} 目录"
 # Deploy阶段: 部署构建的文件
 deploy:
   stage: deploy
