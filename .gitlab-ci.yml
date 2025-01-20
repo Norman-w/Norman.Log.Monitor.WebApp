@@ -28,7 +28,7 @@ deploy:
   script:
     - >
       echo "开始 Deploy 阶段: 部署到主机 ${DEPLOY_PATH}..." &&
-      DIST_ABS_PATH=$(realpath ${DIST_DIR}) &&
+      DIST_ABS_PATH=$(realpath}) &&
       echo "开始 Deploy 阶段: 将文件复制到 ${DEPLOY_PATH}..." &&
       echo "源路径: ${DIST_ABS_PATH}, 部署目标路径: ${DEPLOY_PATH}" &&
       ls ${DIST_ABS_PATH} &&
