@@ -1,18 +1,47 @@
-check_server_environment:
-  script:
-    - echo "系统版本:" && uname -a
-    - echo "CPU 信息:" && lscpu
-    - echo "内存信息:" && free -h
-    - echo "磁盘信息:" && df -h
-    - echo "网络信息:" && ip a
-    - echo "当前时间:" && date
-    - |
-      if command -v docker &> /dev/null
-      then
-        echo "Docker 版本:" && docker --version
-      else
-        echo "Docker 未安装"
-      fi
+stages:
+  - pre
+  - build
+  - deploy
+
+variables:
+  NODE_VERSION: "18.18.0" # Node.js 版本
+  DIST_DIR: "dist"       # 构建输出目录
+  DEPLOY_PATH: "/var/www/norman.log.monitor.web" # 部署目标路径
+
+# 使用带有 docker 和 localhost 标签的 Runner
+default:
   tags:
+    - docker
     - localhost
-  trace: true
+
+# Pre阶段: 环境准备工作
+pre:
+  stage: pre
+  image: node:${NODE_VERSION}
+  script:
+    - echo "开始 Pre 阶段: 初始化环境..."
+    - echo "检查目标部署目录: ${DEPLOY_PATH}"
+    - if [ ! -d "${DEPLOY_PATH}" ]; then echo "目标路径不存在，正在创建..."; mkdir -p "${DEPLOY_PATH}"; fi
+    - echo "Pre 阶段完成"
+
+# Build阶段: 项目依赖安装并构建
+build:
+  stage: build
+  image: node:${NODE_VERSION}
+  script:
+    - echo "开始 Build 阶段: 安装依赖并构建项目..."
+    - npm install
+    - npm run build
+    - echo "Build 阶段完成: 构建产物已生成"
+  artifacts:
+    paths:
+      - ${DIST_DIR} # 保存构建的产物以便传递到后续阶段
+
+# Deploy阶段: 部署构建的文件
+deploy:
+  stage: deploy
+  image: node:${NODE_VERSION}
+  script:
+    - echo "开始 Deploy 阶段: 部署到主机 ${DEPLOY_PATH}..."
+    - ls ${DIST_DIR} && cp -r ${DIST_DIR}/* ${DEPLOY_PATH}
+    - echo "Deploy 阶段完成: 文件已部署到 ${DEPLOY_PATH}"
