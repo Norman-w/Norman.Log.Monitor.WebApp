@@ -39,7 +39,7 @@ deploy:
       echo "开始 Deploy 阶段: 将文件复制到 ${DEPLOY_PATH}..." &&
       echo "源路径: ${DIST_ABS_PATH}, 部署目标路径: ${DEPLOY_PATH}" &&
       ls ${DIST_ABS_PATH} &&
-      mkdir -p ${DEPLOY_PATH} &&
+      sudo mkdir -p ${DEPLOY_PATH} &&
       cp -r ${DIST_ABS_PATH}/* ${DEPLOY_PATH} &&
       DEPLOY_TIME=$(date "+%Y-%m-%d %H:%M:%S") &&
       echo "Deploy 阶段完成: 文件已部署到 ${DEPLOY_PATH}" &&
