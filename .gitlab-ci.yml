@@ -19,11 +19,8 @@ pre:
   stage: pre
   image: node:${NODE_VERSION}
   script:
-    - >
-      echo "开始 Pre 阶段: 初始化环境..." &&
-      echo "检查目标部署目录: ${DEPLOY_PATH}" &&
-      if [ ! -d "${DEPLOY_PATH}" ]; then echo "目标路径不存在，正在创建..."; mkdir -p "${DEPLOY_PATH}"; fi &&
-      echo "Pre 阶段完成"
+    -  echo "开始 Pre 阶段_ 初始化环境..."
+    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
 
 # Build阶段: 项目依赖安装并构建
 build:
