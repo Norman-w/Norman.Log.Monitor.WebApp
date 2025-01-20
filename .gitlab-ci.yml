@@ -19,27 +19,8 @@ pre:
   stage: pre
   image: node:${NODE_VERSION}
   script:
-    -  echo "开始 Pre 阶段_ 初始化环境..."
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
-    -  echo "检查目标部署目录_ ${DEPLOY_PATH}"
+    - echo "检查docker安装情况" && docker --version
+    - echo "检查docker中的node版本" && docker run --rm node:${NODE_VERSION} node --version
 
 # Build阶段: 项目依赖安装并构建
 build:
