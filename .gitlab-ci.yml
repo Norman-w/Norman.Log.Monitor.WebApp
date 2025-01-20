@@ -19,20 +19,22 @@ pre:
   stage: pre
   image: node:${NODE_VERSION}
   script:
-    - echo "开始 Pre 阶段: 初始化环境..."
-    - echo "检查目标部署目录: ${DEPLOY_PATH}"
-    - if [ ! -d "${DEPLOY_PATH}" ]; then echo "目标路径不存在，正在创建..."; mkdir -p "${DEPLOY_PATH}"; fi
-    - echo "Pre 阶段完成"
+    - >
+      echo "开始 Pre 阶段: 初始化环境..." &&
+      echo "检查目标部署目录: ${DEPLOY_PATH}" &&
+      if [ ! -d "${DEPLOY_PATH}" ]; then echo "目标路径不存在，正在创建..."; mkdir -p "${DEPLOY_PATH}"; fi &&
+      echo "Pre 阶段完成"
 
 # Build阶段: 项目依赖安装并构建
 build:
   stage: build
   image: node:${NODE_VERSION}
   script:
-    - echo "开始 Build 阶段: 安装依赖并构建项目..."
-    - npm install
-    - npm run build
-    - echo "Build 阶段完成: 构建产物已生成"
+    - >
+      echo "开始 Build 阶段: 安装依赖并构建项目..." &&
+      npm install &&
+      npm run build &&
+      echo "Build 阶段完成: 构建产物已生成"
   artifacts:
     paths:
       - ${DIST_DIR} # 保存构建的产物以便传递到后续阶段
@@ -42,6 +44,7 @@ deploy:
   stage: deploy
   image: node:${NODE_VERSION}
   script:
-    - echo "开始 Deploy 阶段: 部署到主机 ${DEPLOY_PATH}..."
-    - ls ${DIST_DIR} && cp -r ${DIST_DIR}/* ${DEPLOY_PATH}
-    - echo "Deploy 阶段完成: 文件已部署到 ${DEPLOY_PATH}"
+    - >
+      echo "开始 Deploy 阶段: 部署到主机 ${DEPLOY_PATH}..." &&
+      ls ${DIST_DIR} && cp -r ${DIST_DIR}/* ${DEPLOY_PATH} &&
+      echo "Deploy 阶段完成: 文件已部署到 ${DEPLOY_PATH}"
