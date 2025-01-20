@@ -16,6 +16,8 @@ default:
 build:
   stage: build
   script:
+    #输出当前工作目录
+    - pwd
     - echo "开始 Build 阶段. 安装依赖并构建项目..."
     - npm install
     - npm run build
