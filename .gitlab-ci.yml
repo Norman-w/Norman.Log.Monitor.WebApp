@@ -28,15 +28,12 @@ build:
   services:
     - docker:dind
   script:
-    - >
-      echo "开始 Build 阶段: 安装依赖并构建项目..." &&
-      sudo docker run --rm -v $(pwd):/app -w /app node:${NODE_VERSION} /bin/bash -c "
-      npm install &&
-      npm run build &&
-      echo 'Build 完成: 构建产物已生成'在 ${DIST_DIR} 目录" &&
-  artifacts:
-    paths:
-    - ${DIST_DIR} # 保存构建的产物以便传递到后续阶段
+  - >
+    echo "开始 Build 阶段: 安装依赖并构建项目..." &&
+    sudo docker run --rm -v $(pwd):/app -w /app node:${NODE_VERSION} /bin/bash -c "
+    npm install &&
+    npm run build &&
+    echo 'Build 完成: 构建产物已生成在 ${DIST_DIR} 目录'"
 # Deploy阶段: 部署构建的文件
 deploy:
   stage: deploy
