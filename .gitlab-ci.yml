@@ -24,16 +24,12 @@ pre:
 # Build阶段: 项目依赖安装并构建
 build:
   stage: build
-  image: docker:latest
-  services:
-    - docker:dind
   script:
-  - >
-    echo "开始 Build 阶段: 安装依赖并构建项目..." &&
-    sudo docker run --rm -v $(pwd):/app -w /app node:${NODE_VERSION} /bin/bash -c "
-    npm install &&
-    npm run build &&
-    echo 'Build 完成: 构建产物已生成在 ${DIST_DIR} 目录'"
+    - echo "开始 Build 阶段: 安装依赖并构建项目..."
+    - npm install
+    - npm run build
+    - DIST_ABS_PATH=$(realpath ${DIST_DIR})
+    - echo "Build 完成: 构建产物已生成在 ${DIST_ABS_PATH} 目录"
 # Deploy阶段: 部署构建的文件
 deploy:
   stage: deploy
@@ -41,5 +37,12 @@ deploy:
   script:
     - >
       echo "开始 Deploy 阶段: 部署到主机 ${DEPLOY_PATH}..." &&
-      ls ${DIST_DIR} && cp -r ${DIST_DIR}/* ${DEPLOY_PATH} &&
-      echo "Deploy 阶段完成: 文件已部署到 ${DEPLOY_PATH}"
+      DIST_ABS_PATH=$(realpath ${DIST_DIR}) &&
+      echo "开始 Deploy 阶段: 将文件复制到 ${DEPLOY_PATH}..." &&
+      echo "源路径: ${DIST_ABS_PATH}, 部署目标路径: ${DEPLOY_PATH}" &&
+      ls ${DIST_ABS_PATH} &&
+      cp -r ${DIST_ABS_PATH}/* ${DEPLOY_PATH} &&
+      DEPLOY_TIME=$(date "+%Y-%m-%d %H:%M:%S") &&
+      echo "Deploy 阶段完成: 文件已部署到 ${DEPLOY_PATH}" &&
+      echo "部署完成时间: ${DEPLOY_TIME}" &&
+      echo "详细日志见以上输出"
